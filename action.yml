@@ -1,0 +1,37 @@
+name: "ChainSkillsRadar"
+description: "Generate a configurable radar-chart SVG for a GitHub README"
+author: "ChainSkillsRadar contributors"
+
+inputs:
+  config:
+    description: "Path to a radar.yml or radar.json configuration file"
+    required: false
+    default: "radar.yml"
+  output:
+    description: "Path where the generated SVG will be written"
+    required: false
+    default: "assets/radar.svg"
+  values:
+    description: "Optional JSON object overriding all category values"
+    required: false
+  color:
+    description: "Optional hex color override, for example #6366f1"
+    required: false
+  fill_opacity:
+    description: "Optional fill opacity override from 0 to 1"
+    required: false
+  max:
+    description: "Optional maximum scale value"
+    required: false
+
+outputs:
+  svg:
+    description: "Path to the generated SVG"
+
+runs:
+  using: "node20"
+  main: "action/index.mjs"
+
+branding:
+  icon: "activity"
+  color: "blue"
