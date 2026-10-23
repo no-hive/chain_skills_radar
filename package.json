@@ -1,13 +1,13 @@
 {
   "name": "chain-skills-radar",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "description": "Generate configurable radar-chart SVG cards for GitHub READMEs.",
   "type": "module",
   "bin": {
     "chain-skills-radar": "src/cli.mjs"
   },
   "scripts": {
-    "generate": "node src/cli.mjs generate --config radar.yml --output assets/radar.svg",
+    "generate": "node src/cli.mjs generate --config radar.json --output assets/radar.svg",
     "test": "node --test"
   },
   "keywords": [

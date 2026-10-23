@@ -12,7 +12,7 @@ Usage:
   chain-skills-radar generate [options]
 
 Options:
-  -c, --config <path>          YAML or JSON config (default: radar.yml)
+  -c, --config <path>          JSON config (default: radar.json)
   -o, --output <path>          SVG output path (default: assets/radar.svg)
       --values <json>          Override areas with a JSON object
       --color <hex>            Override the fill color
@@ -24,7 +24,7 @@ Options:
 
 function parseArguments(argv) {
   const args = argv[0] === "generate" ? argv.slice(1) : argv;
-  const options = { config: "radar.yml", output: "assets/radar.svg" };
+  const options = { config: "radar.json", output: "assets/radar.svg" };
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (argument === "-h" || argument === "--help") options.help = true;

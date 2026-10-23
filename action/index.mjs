@@ -9,7 +9,7 @@ function input(name, fallback = "") {
 }
 
 async function main() {
-  const configPath = input("config", "radar.yml");
+  const configPath = input("config", "radar.json");
   const output = input("output", "assets/radar.svg");
   const values = input("values");
   let config;

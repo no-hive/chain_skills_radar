@@ -1,0 +1,20 @@
+{
+  "title": "ChainSkillsRadar",
+  "max": 10,
+  "rings": 4,
+  "color": "#6366f1",
+  "fillOpacity": 0.3,
+  "theme": "auto",
+  "width": 1200,
+  "height": 600,
+  "areas": {
+    "DeFi": 5,
+    "PayFi": 3,
+    "Assets": 1,
+    "DePIN": 2,
+    "Privacy": 4,
+    "Identity": 3,
+    "Funding": 4,
+    "DAOs": 8
+  }
+}

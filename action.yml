@@ -4,9 +4,9 @@ author: "ChainSkillsRadar contributors"
 
 inputs:
   config:
-    description: "Path to a radar.yml or radar.json configuration file"
+    description: "Path to a radar.json configuration file"
     required: false
-    default: "radar.yml"
+    default: "radar.json"
   output:
     description: "Path where the generated SVG will be written"
     required: false

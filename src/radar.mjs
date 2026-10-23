@@ -4,9 +4,10 @@ const DEFAULTS = {
   rings: 4,
   color: "#6366f1",
   fillOpacity: 0.3,
-  width: 660,
-  height: 590,
-  radius: 170,
+  theme: "auto",
+  width: 1200,
+  height: 600,
+  radius: 214,
 };
 
 function escapeXml(value) {
@@ -70,6 +71,10 @@ export function normalizeConfig(input) {
   }
 
   config.color = validateHexColor(String(config.color));
+  config.theme = String(config.theme).toLowerCase();
+  if (!["auto", "light", "dark"].includes(config.theme)) {
+    throw new Error("theme must be auto, light, or dark");
+  }
   config.areas = entries.map(([label, rawValue]) => {
     const value = finiteNumber(rawValue, `areas.${label}`);
     if (value < 0 || value > config.max) {
@@ -83,10 +88,19 @@ export function normalizeConfig(input) {
 
 export function generateRadarSvg(input) {
   const config = normalizeConfig(input);
-  const { width, height, radius, max, rings, color, fillOpacity, areas } = config;
+  const { width, height, radius, max, rings, color, fillOpacity, theme, areas } = config;
   const cx = width / 2;
-  const cy = height / 2 - 5;
+  const titleFontSize = 24;
+  const labelFontSize = 15.5;
+  const titleHeight = titleFontSize * 1.2;
   const labelRadius = radius + 28;
+  const chartHalfHeight = labelRadius + labelFontSize * 0.6;
+  const verticalGap = (height - titleHeight - chartHalfHeight * 2) / 3;
+  if (verticalGap < 8) {
+    throw new Error("height is too small for the selected radius and labels");
+  }
+  const titleY = verticalGap + titleFontSize;
+  const cy = verticalGap * 2 + titleHeight + chartHalfHeight;
   const count = areas.length;
 
   const grid = Array.from({ length: rings }, (_, index) => {
@@ -121,18 +135,26 @@ export function generateRadarSvg(input) {
     .join("\n");
 
   const title = escapeXml(config.title);
+  const darkTheme = ".background{fill:#0d1117}.grid,.outer,.axis,.data{stroke:#f0f6fc}.dot,.label,.chart-title{fill:#f0f6fc}";
+  const lightTheme = ".background{fill:#fff}.grid,.outer,.axis,.data{stroke:#000}.dot,.label,.chart-title{fill:#000}";
+  const themeStyles =
+    theme === "dark"
+      ? darkTheme
+      : theme === "light"
+        ? lightTheme
+        : `${lightTheme}\n  @media(prefers-color-scheme:dark){${darkTheme}}`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${title}">
 <title>${title}</title>
 <style>
-  .background{fill:#fff}
-  .grid{fill:none;stroke:#000;stroke-width:1;stroke-dasharray:2 4}
-  .outer,.axis{fill:none;stroke:#000;stroke-width:1}
-  .data{fill:${color};fill-opacity:${fillOpacity};stroke:#000;stroke-width:2.5;stroke-linejoin:round}
-  .dot{fill:#000}
-  .label{font:400 15.5px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px;fill:#000}
-  @media(prefers-color-scheme:dark){.background{fill:#000}.grid,.outer,.axis,.data{stroke:#fff}.dot,.label{fill:#fff}}
+  .grid{fill:none;stroke-width:1;stroke-dasharray:2 4}
+  .outer,.axis{fill:none;stroke-width:1}
+  .data{fill:${color};fill-opacity:${fillOpacity};stroke-width:2.5;stroke-linejoin:round}
+  .label{font:400 15.5px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
+  .chart-title{font:500 24px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
+  ${themeStyles}
 </style>
 <rect class="background" width="${width}" height="${height}"/>
+<text class="chart-title" x="${cx}" y="${titleY.toFixed(1)}" text-anchor="middle">${title}</text>
 ${grid}
 ${axes}
 <polygon class="data" points="${dataPoints.map(formatPoint).join(" ")}"/>

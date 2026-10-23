@@ -1,74 +1,39 @@
 # ChainSkillsRadar
 
-Generate a lightweight, responsive onchain-skills radar SVG for a GitHub README. Categories remain fully customizable, values use a configurable scale, and the card supports dark mode without JavaScript or external fonts.
+Add an onchain-skills radar to your GitHub README.
 
-![Example radar](./assets/radar.svg)
+## 1. Create `radar.json`
 
-## Configure
+Add this file to the root of your repository:
 
-Create `radar.yml`:
-
-```yaml
-title: "ChainSkillsRadar"
-max: 10
-rings: 4
-color: "#6366f1"
-fillOpacity: 0.3
-
-areas:
-  DeFi: 5
-  PayFi: 3
-  Assets: 1
-  DePIN: 2
-  Privacy: 4
-  Identity: 3
-  Funding: 4
-  DAOs: 8
+```json
+{
+  "title": "ChainSkillsRadar",
+  "max": 10,
+  "rings": 4,
+  "color": "#6366f1",
+  "fillOpacity": 0.3,
+  "theme": "auto",
+  "width": 1200,
+  "height": 600,
+  "areas": {
+    "DeFi": 5,
+    "PayFi": 3,
+    "Assets": 1,
+    "DePIN": 2,
+    "Privacy": 4,
+    "Identity": 3,
+    "Funding": 4,
+    "DAOs": 8
+  }
+}
 ```
 
-The order under `areas` is the clockwise order of the radar axes, starting at the top. Use between 3 and 16 categories. Colors must be three- or six-digit hex values.
+The `title` value is shown above the radar. Use `"theme": "auto"` to follow the GitHub theme automatically. You can also use `"light"` or `"dark"` to lock the image to one theme. Change the title, category names, values, color, and opacity as needed. Values must be between `0` and `max`.
 
-## Generate locally
+## 2. Create the workflow
 
-Node.js 20 or newer is required. The project has no runtime dependencies.
-
-```bash
-npm run generate
-```
-
-Or run the CLI directly:
-
-```bash
-node src/cli.mjs generate \
-  --config radar.yml \
-  --output assets/radar.svg
-```
-
-Values and appearance can also be overridden from the command line:
-
-```bash
-node src/cli.mjs generate \
-  --config radar.yml \
-  --values '{"DeFi":5,"PayFi":3,"Assets":1,"DePIN":2,"Privacy":4,"Identity":3,"Funding":4,"DAOs":8}' \
-  --color '#14b8a6' \
-  --fill-opacity 0.3 \
-  --output assets/radar.svg
-```
-
-Embed the generated file in a README:
-
-```md
-![My radar](./assets/radar.svg)
-```
-
-## Connect it to your repository
-
-1. Publish this project as `chain-skills-radar` and create a `v1` tag.
-2. Add `radar.yml` to the repository where you want the card.
-3. Add the workflow below as `.github/workflows/update-chain-skills-radar.yml`.
-4. Add `![My onchain skills](./assets/radar.svg)` to that repository's README.
-
-The workflow regenerates and commits the SVG whenever `radar.yml` changes:
+Create `.github/workflows/chain-skills-radar.yml`:
 
 ```yaml
 name: Update ChainSkillsRadar
@@ -77,63 +42,42 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "radar.yml"
+      - "radar.json"
 
 permissions:
   contents: write
 
 jobs:
-  radar:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Generate radar
-        uses: YOUR_GITHUB_USER/chain-skills-radar@v1
+        uses: YOUR_GITHUB_USER/chain-skills-radar@v3
         with:
-          config: radar.yml
+          config: radar.json
           output: assets/radar.svg
-          color: "#6366f1"
-          fill_opacity: "0.3"
 
-      - name: Commit generated SVG
+      - name: Commit radar
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/radar.svg
-          git diff --cached --quiet || git commit -m "chore: update radar SVG"
+          git diff --cached --quiet || git commit -m "chore: update skills radar"
           git push
 ```
 
-Instead of editing `radar.yml`, callers can pass all values as JSON:
+Replace `YOUR_GITHUB_USER` with the GitHub username or organization that publishes ChainSkillsRadar.
 
-```yaml
-- uses: YOUR_GITHUB_USER/chain-skills-radar@v1
-  with:
-    values: '{"DeFi":5,"PayFi":3,"Assets":1,"DePIN":2,"Privacy":4,"Identity":3,"Funding":4,"DAOs":8}'
-    color: "#6366f1"
-    fill_opacity: "0.3"
-    output: assets/radar.svg
+## 3. Add the image to your README
+
+```md
+![My onchain skills](./assets/radar.svg)
 ```
 
-## Inputs
+## 4. Push the changes
 
-| Input | Default | Description |
-| --- | --- | --- |
-| `config` | `radar.yml` | YAML or JSON configuration path |
-| `output` | `assets/radar.svg` | Generated SVG path |
-| `values` | — | JSON object that replaces `areas` |
-| `color` | config value | Three- or six-digit hex color |
-| `fill_opacity` | config value | Number from `0` to `1` |
-| `max` | config value | Maximum radar scale value |
+Commit and push `radar.json`, the workflow, and your README. GitHub Actions will generate `assets/radar.svg` and add it to the repository automatically.
 
-## Development
-
-```bash
-npm test
-npm run generate
-```
-
-## License
-
-MIT
+Whenever you change `radar.json`, the image will be regenerated.
