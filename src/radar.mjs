@@ -1,3 +1,5 @@
+import { assertRecord, finiteNumber, validateText } from "./validation.mjs";
+
 const DEFAULTS = {
   title: "ChainSkillsRadar",
   max: 10,
@@ -17,12 +19,6 @@ function escapeXml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&apos;");
-}
-
-function finiteNumber(value, name) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) throw new Error(`${name} must be a finite number`);
-  return number;
 }
 
 function validateHexColor(color) {
@@ -47,16 +43,20 @@ function polygonPoints(count, cx, cy, radius) {
 }
 
 export function normalizeConfig(input) {
+  assertRecord(input, "config");
   const config = { ...DEFAULTS, ...input };
-  const entries = Object.entries(config.areas ?? {});
+  assertRecord(config.areas, "areas");
+  const entries = Object.entries(config.areas);
   if (entries.length < 3) throw new Error("areas must contain at least 3 categories");
   if (entries.length > 16) throw new Error("areas supports at most 16 categories");
 
   config.max = finiteNumber(config.max, "max");
   if (config.max <= 0) throw new Error("max must be greater than 0");
 
-  config.rings = Math.round(finiteNumber(config.rings, "rings"));
-  if (config.rings < 1 || config.rings > 10) throw new Error("rings must be between 1 and 10");
+  config.rings = finiteNumber(config.rings, "rings");
+  if (!Number.isInteger(config.rings) || config.rings < 1 || config.rings > 10) {
+    throw new Error("rings must be an integer between 1 and 10");
+  }
 
   config.fillOpacity = finiteNumber(config.fillOpacity, "fillOpacity");
   if (config.fillOpacity < 0 || config.fillOpacity > 1) {
@@ -66,16 +66,22 @@ export function normalizeConfig(input) {
   config.width = finiteNumber(config.width, "width");
   config.height = finiteNumber(config.height, "height");
   config.radius = finiteNumber(config.radius, "radius");
-  if (config.width < 240 || config.height < 240 || config.radius <= 0) {
-    throw new Error("width, height, and radius must be positive and large enough to render");
+  if (!Number.isSafeInteger(config.width) || !Number.isSafeInteger(config.height) ||
+      config.width < 240 || config.height < 240) {
+    throw new Error("width and height must be safe integers of at least 240");
+  }
+  if (config.radius <= 0 || config.radius > Math.min(config.width, config.height) / 2) {
+    throw new Error("radius must be positive and fit within width and height");
   }
 
+  config.title = validateText(config.title, "title");
   config.color = validateHexColor(String(config.color));
   config.theme = String(config.theme).toLowerCase();
   if (!["auto", "light", "dark"].includes(config.theme)) {
     throw new Error("theme must be auto, light, or dark");
   }
   config.areas = entries.map(([label, rawValue]) => {
+    validateText(label, "category label");
     const value = finiteNumber(rawValue, `areas.${label}`);
     if (value < 0 || value > config.max) {
       throw new Error(`areas.${label} must be between 0 and ${config.max}`);
@@ -103,6 +109,23 @@ export function generateRadarSvg(input) {
   const cy = verticalGap * 2 + titleHeight + chartHalfHeight;
   const count = areas.length;
 
+  // Reserve a conservative one-em advance per code point for fallback fonts.
+  const textWidth = (text, fontSize) => Array.from(text).length * (fontSize + 0.1);
+  if (textWidth(config.title, titleFontSize) > width - 24) {
+    throw new Error("width is too small for the title; increase width or shorten title");
+  }
+  for (const [index, { label }] of areas.entries()) {
+    const angle = -Math.PI / 2 + (index * Math.PI * 2) / count;
+    const [x] = point(cx, cy, labelRadius, angle);
+    const cosine = Math.cos(angle);
+    const size = textWidth(label, labelFontSize);
+    const left = x - (cosine < -0.25 ? size : cosine > 0.25 ? 0 : size / 2);
+    const right = x + (cosine > 0.25 ? size : cosine < -0.25 ? 0 : size / 2);
+    if (left < 12 || right > width - 12) {
+      throw new Error(`width is too small for category ${JSON.stringify(label)}; increase width, reduce radius, or shorten labels`);
+    }
+  }
+
   const grid = Array.from({ length: rings }, (_, index) => {
     const ringRadius = (radius * (index + 1)) / rings;
     const className = index === rings - 1 ? "outer" : "grid";
@@ -117,7 +140,7 @@ export function generateRadarSvg(input) {
 
   const dataPoints = areas.map(({ value }, index) => {
     const angle = -Math.PI / 2 + (index * Math.PI * 2) / count;
-    return point(cx, cy, (radius * value) / max, angle);
+    return point(cx, cy, radius * (value / max), angle);
   });
 
   const dots = dataPoints

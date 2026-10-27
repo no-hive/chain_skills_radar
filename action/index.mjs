@@ -1,7 +1,7 @@
 import { appendFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { loadConfig } from "../src/config.mjs";
+import { applyOverrides, loadConfig } from "../src/config.mjs";
 import { generateRadarSvg } from "../src/radar.mjs";
 
 function input(name, fallback = "") {
@@ -11,6 +11,7 @@ function input(name, fallback = "") {
 async function main() {
   const configPath = input("config", "radar.json");
   const output = input("output", "assets/radar.svg");
+  if (/[\r\n]/.test(output)) throw new Error("output must be a single-line path");
   const values = input("values");
   let config;
   try {
@@ -20,13 +21,12 @@ async function main() {
     else throw error;
   }
 
-  const color = input("color");
-  const fillOpacity = input("fill_opacity");
-  const max = input("max");
-  if (values) config.areas = JSON.parse(values);
-  if (color) config.color = color;
-  if (fillOpacity) config.fillOpacity = fillOpacity;
-  if (max) config.max = max;
+  config = applyOverrides(config, {
+    values: values || undefined,
+    color: input("color") || undefined,
+    fillOpacity: input("fill_opacity") || undefined,
+    max: input("max") || undefined,
+  });
 
   const svg = generateRadarSvg(config);
   const outputPath = path.resolve(output);
@@ -40,6 +40,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`::error::${error.message}`);
+  const message = error.message.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+  console.error(`::error::${message}`);
   process.exitCode = 1;
 });

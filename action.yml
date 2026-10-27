@@ -29,7 +29,7 @@ outputs:
     description: "Path to the generated SVG"
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "action/index.mjs"
 
 branding:

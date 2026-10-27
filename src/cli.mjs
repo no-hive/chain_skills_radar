@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from "node:fs/promises";
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 import process from "node:process";
-import { loadConfig } from "./config.mjs";
+import { applyOverrides, loadConfig } from "./config.mjs";
 import { generateRadarSvg } from "./radar.mjs";
 
 function help() {
@@ -25,15 +27,23 @@ Options:
 function parseArguments(argv) {
   const args = argv[0] === "generate" ? argv.slice(1) : argv;
   const options = { config: "radar.json", output: "assets/radar.svg" };
+  const flags = new Map([
+    ["-c", "config"], ["--config", "config"],
+    ["-o", "output"], ["--output", "output"],
+    ["--values", "values"], ["--color", "color"],
+    ["--fill-opacity", "fillOpacity"], ["--max", "max"],
+  ]);
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (argument === "-h" || argument === "--help") options.help = true;
-    else if (argument === "-c" || argument === "--config") options.config = args[++index];
-    else if (argument === "-o" || argument === "--output") options.output = args[++index];
-    else if (argument === "--values") options.values = args[++index];
-    else if (argument === "--color") options.color = args[++index];
-    else if (argument === "--fill-opacity") options.fillOpacity = args[++index];
-    else if (argument === "--max") options.max = args[++index];
+    else if (flags.has(argument)) {
+      const value = args[index + 1];
+      if (value === undefined || value.trim() === "" || /^--?[a-z]/i.test(value)) {
+        throw new Error(`Missing value for ${argument}`);
+      }
+      options[flags.get(argument)] = value;
+      index += 1;
+    }
     else throw new Error(`Unknown argument: ${argument}`);
   }
   return options;
@@ -50,10 +60,7 @@ export async function run(argv = process.argv.slice(2)) {
     if (error.code === "ENOENT" && options.values) config = {};
     else throw error;
   }
-  if (options.values) config.areas = JSON.parse(options.values);
-  if (options.color) config.color = options.color;
-  if (options.fillOpacity !== undefined) config.fillOpacity = options.fillOpacity;
-  if (options.max !== undefined) config.max = options.max;
+  config = applyOverrides(config, options);
 
   const svg = generateRadarSvg(config);
   const outputPath = path.resolve(options.output);
@@ -62,7 +69,16 @@ export async function run(argv = process.argv.slice(2)) {
   console.log(`Generated ${path.relative(process.cwd(), outputPath)}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+function isMainModule() {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
   run().catch((error) => {
     console.error(`chain-skills-radar: ${error.message}`);
     process.exitCode = 1;
