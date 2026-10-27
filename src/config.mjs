@@ -20,5 +20,9 @@ export function applyOverrides(config, overrides) {
     result.fillOpacity = finiteNumber(overrides.fillOpacity, "fillOpacity", true);
   }
   if (overrides.max !== undefined) result.max = finiteNumber(overrides.max, "max", true);
+  if (overrides.format !== undefined) result.format = overrides.format;
+  for (const key of ["size", "labelFontSize", "titleFontSize"]) {
+    if (overrides[key] !== undefined) result[key] = finiteNumber(overrides[key], key, true);
+  }
   return result;
 }

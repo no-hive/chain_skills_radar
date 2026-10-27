@@ -26,6 +26,10 @@ async function main() {
     color: input("color") || undefined,
     fillOpacity: input("fill_opacity") || undefined,
     max: input("max") || undefined,
+    format: input("format") || undefined,
+    size: input("size") || undefined,
+    labelFontSize: input("label_font_size") || undefined,
+    titleFontSize: input("title_font_size") || undefined,
   });
 
   const svg = generateRadarSvg(config);

@@ -7,10 +7,16 @@ const DEFAULTS = {
   color: "#6366f1",
   fillOpacity: 0.3,
   theme: "auto",
+  format: "wide",
+  size: 900,
   width: 1200,
   height: 600,
   radius: 214,
+  labelFontSize: 15.5,
+  titleFontSize: 24,
 };
+
+const SQUARE_DEFAULTS = { radius: 240, labelFontSize: 24, titleFontSize: 32 };
 
 function escapeXml(value) {
   return String(value)
@@ -44,7 +50,19 @@ function polygonPoints(count, cx, cy, radius) {
 
 export function normalizeConfig(input) {
   assertRecord(input, "config");
-  const config = { ...DEFAULTS, ...input };
+  const format = input.format === undefined ? "wide" : input.format;
+  if (format !== "wide" && format !== "square") {
+    throw new Error("format must be wide or square");
+  }
+  const config = { ...DEFAULTS, ...(format === "square" ? SQUARE_DEFAULTS : {}), ...input };
+  if (format === "square") {
+    config.size = finiteNumber(config.size, "size");
+    if (!Number.isSafeInteger(config.size) || config.size < 240) {
+      throw new Error("size must be a safe integer of at least 240");
+    }
+    // The square preset also works with existing configs containing wide dimensions.
+    config.width = config.height = config.size;
+  }
   assertRecord(config.areas, "areas");
   const entries = Object.entries(config.areas);
   if (entries.length < 3) throw new Error("areas must contain at least 3 categories");
@@ -66,6 +84,11 @@ export function normalizeConfig(input) {
   config.width = finiteNumber(config.width, "width");
   config.height = finiteNumber(config.height, "height");
   config.radius = finiteNumber(config.radius, "radius");
+  config.labelFontSize = finiteNumber(config.labelFontSize, "labelFontSize");
+  config.titleFontSize = finiteNumber(config.titleFontSize, "titleFontSize");
+  if (config.labelFontSize <= 0 || config.titleFontSize <= 0) {
+    throw new Error("labelFontSize and titleFontSize must be greater than 0");
+  }
   if (!Number.isSafeInteger(config.width) || !Number.isSafeInteger(config.height) ||
       config.width < 240 || config.height < 240) {
     throw new Error("width and height must be safe integers of at least 240");
@@ -94,12 +117,10 @@ export function normalizeConfig(input) {
 
 export function generateRadarSvg(input) {
   const config = normalizeConfig(input);
-  const { width, height, radius, max, rings, color, fillOpacity, theme, areas } = config;
+  const { width, height, radius, max, rings, color, fillOpacity, theme, areas, labelFontSize, titleFontSize } = config;
   const cx = width / 2;
-  const titleFontSize = 24;
-  const labelFontSize = 15.5;
   const titleHeight = titleFontSize * 1.2;
-  const labelRadius = radius + 28;
+  const labelRadius = radius + Math.max(28, labelFontSize * 1.15);
   const chartHalfHeight = labelRadius + labelFontSize * 0.6;
   const verticalGap = (height - titleHeight - chartHalfHeight * 2) / 3;
   if (verticalGap < 8) {
@@ -172,8 +193,8 @@ export function generateRadarSvg(input) {
   .grid{fill:none;stroke-width:1;stroke-dasharray:2 4}
   .outer,.axis{fill:none;stroke-width:1}
   .data{fill:${color};fill-opacity:${fillOpacity};stroke-width:2.5;stroke-linejoin:round}
-  .label{font:400 15.5px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
-  .chart-title{font:500 24px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
+  .label{font:400 ${labelFontSize}px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
+  .chart-title{font:500 ${titleFontSize}px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
   ${themeStyles}
 </style>
 <rect class="background" width="${width}" height="${height}"/>

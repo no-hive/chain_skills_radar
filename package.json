@@ -8,6 +8,7 @@
   },
   "scripts": {
     "generate": "node src/cli.mjs generate --config radar.json --output assets/radar.svg",
+    "generate:square": "node src/cli.mjs generate --config examples/radar-square.json --output assets/radar-square.svg",
     "test": "node --test"
   },
   "keywords": [

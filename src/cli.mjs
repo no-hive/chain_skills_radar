@@ -20,6 +20,10 @@ Options:
       --color <hex>            Override the fill color
       --fill-opacity <number>  Override fill opacity from 0 to 1
       --max <number>           Override the maximum scale value
+      --format <wide|square>   Select the layout (default: wide)
+      --size <number>          Square canvas side (default: 900)
+      --label-font-size <n>    Override category label font size
+      --title-font-size <n>    Override title font size
   -h, --help                   Show this help
 `);
 }
@@ -32,6 +36,8 @@ function parseArguments(argv) {
     ["-o", "output"], ["--output", "output"],
     ["--values", "values"], ["--color", "color"],
     ["--fill-opacity", "fillOpacity"], ["--max", "max"],
+    ["--format", "format"], ["--size", "size"],
+    ["--label-font-size", "labelFontSize"], ["--title-font-size", "titleFontSize"],
   ]);
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];

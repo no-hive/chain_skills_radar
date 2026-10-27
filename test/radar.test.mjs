@@ -130,3 +130,47 @@ test("keeps coordinates finite for very large and very small valid scales", () =
     assert.match(svg, /<circle class="dot" cx="600\.0" cy="111\.8"/);
   }
 });
+
+test("square preset uses equal sides and larger typography with legacy wide dimensions", () => {
+  const input = { ...sample, format: "square", width: 1200, height: 600 };
+  const config = normalizeConfig(input);
+  assert.equal(config.width, 900);
+  assert.equal(config.height, 900);
+  assert.equal(config.radius, 240);
+  assert.equal(config.labelFontSize, 24);
+  assert.equal(config.titleFontSize, 32);
+  const svg = generateRadarSvg(input);
+  assert.match(svg, /viewBox="0 0 900 900" width="900" height="900"/);
+  assert.match(svg, /\.label\{font:400 24px/);
+  assert.match(svg, /\.chart-title\{font:500 32px/);
+  assert.equal((svg.match(/<circle class="dot"/g) ?? []).length, 8);
+  assert.doesNotMatch(svg, /NaN|Infinity/);
+});
+
+test("supports explicit canvas size, radius, and typography in square format", () => {
+  const svg = generateRadarSvg({ ...sample, format: "square", size: 1000, radius: 250, labelFontSize: 28, titleFontSize: 36 });
+  assert.match(svg, /viewBox="0 0 1000 1000"/);
+  assert.match(svg, /\.label\{font:400 28px/);
+  assert.match(svg, /\.chart-title\{font:500 36px/);
+});
+
+test("supports larger labels in wide format independently of the square preset", () => {
+  const svg = generateRadarSvg({ ...sample, labelFontSize: 28, titleFontSize: 32 });
+  assert.match(svg, /viewBox="0 0 1200 600"/);
+  assert.match(svg, /\.label\{font:400 28px/);
+});
+
+test("rejects invalid formats, square sizes, and typography", () => {
+  for (const format of [null, true, "circle", "", 10]) {
+    assert.throws(() => normalizeConfig({ ...sample, format }), /format must be wide or square/);
+  }
+  for (const size of [null, "900", NaN, Infinity, 0, -1, 239, 900.5, 1e308]) {
+    assert.throws(() => normalizeConfig({ ...sample, format: "square", size }), /size/);
+  }
+  for (const field of ["labelFontSize", "titleFontSize"]) {
+    for (const value of [null, "24", 0, -1, Infinity, NaN]) {
+      assert.throws(() => normalizeConfig({ ...sample, [field]: value }), /finite number|greater than 0/);
+    }
+  }
+  assert.throws(() => generateRadarSvg({ ...sample, format: "square", labelFontSize: 80 }), /width is too small/);
+});

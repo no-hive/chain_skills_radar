@@ -34,6 +34,62 @@ npm install --global .
 chain-skills-radar generate --config radar.json --output assets/radar.svg
 ```
 
+## Square format and larger labels
+
+Use `"format": "square"` in `radar.json` for a 900 × 900 card with 24 px category labels and a 32 px title. The default wide card remains 1200 × 600 with 15.5 px labels and a 24 px title.
+
+```json
+{
+  "title": "ChainSkillsRadar",
+  "format": "square",
+  "size": 900,
+  "labelFontSize": 24,
+  "titleFontSize": 32,
+  "areas": {
+    "DeFi": 5,
+    "PayFi": 3,
+    "Assets": 1,
+    "DePIN": 2,
+    "Privacy": 4,
+    "Identity": 3,
+    "Funding": 4,
+    "DAOs": 8
+  }
+}
+```
+
+In square format, `size` sets both width and height and takes precedence over existing `width` and `height` fields. The default square radius is 240; an explicit `radius` still overrides it. Increasing label size or decreasing canvas size may require a smaller radius or shorter labels to fit.
+
+A complete example is in `examples/radar-square.json`. Generate it with:
+
+```sh
+npm run generate:square
+# Or use your existing config:
+node src/cli.mjs generate --format square --output assets/radar-square.svg
+```
+
+Font sizes can also be changed in wide format. For example, set `labelFontSize` to 24 without changing `format`.
+
+After uploading this version to your generator repository, another repository can select the format directly in its workflow:
+
+```yaml
+- name: Generate square radar
+  uses: no-hive/chain_skills_radar@main
+  with:
+    config: radar.json
+    output: assets/radar.svg
+    format: square
+    size: 900
+    label_font_size: 24
+    title_font_size: 32
+```
+
+These inputs override the config. The equivalent CLI flags are `--format`, `--size`, `--label-font-size`, and `--title-font-size`. The config uses camelCase for the two font fields; the Action inputs use underscores.
+
+Preview:
+
+![Square radar with larger labels](./assets/radar-square-dark.png)
+
 ## Configuration
 
 Create `radar.json`:
@@ -62,7 +118,7 @@ Create `radar.json`:
 }
 ```
 
-All fields except `areas` have defaults, shown above. Unknown fields are ignored.
+All fields except `areas` have defaults. The example above shows the wide layout defaults; the square preset is described above. Unknown fields are ignored.
 
 | Field | Accepted values |
 | --- | --- |
@@ -74,7 +130,11 @@ All fields except `areas` have defaults, shown above. Unknown fields are ignored
 | `fillOpacity` | Number from 0 to 1 |
 | `theme` | `auto`, `light`, or `dark` (case-insensitive) |
 | `width`, `height` | Safe integers of at least 240; the chart and text must fit |
-| `radius` | Positive finite number that fits within the image |
+| `radius` | Positive finite number that fits within the image (wide: 214, square: 240) |
+| `format` | `wide` (default) or `square` |
+| `size` | Square side length; safe integer of at least 240 (default: 900); ignored in wide format |
+| `labelFontSize` | Positive finite font size in pixels (wide: 15.5, square: 24) |
+| `titleFontSize` | Positive finite font size in pixels (wide: 24, square: 32) |
 
 JSON numbers must be numbers, not strings, booleans, or `null`. CLI and Action numeric overrides accept numeric strings and then use the same validation. Categories follow JavaScript object-key order; avoid integer-only names if their order matters.
 
@@ -138,6 +198,6 @@ jobs:
 
 Change `main` to your default branch if necessary. Run the workflow on that branch. The Action generates the file; the separate commit step saves it to GitHub. The output path is available as `steps.radar.outputs.svg`.
 
-Action inputs are `config`, `output`, `values`, `color`, `fill_opacity`, and `max`. `values` is a JSON object replacing all categories. `fill_opacity` uses an underscore; the JSON config uses `fillOpacity`.
+Action inputs are `config`, `output`, `values`, `color`, `fill_opacity`, `max`, `format`, `size`, `label_font_size`, and `title_font_size`. `values` is a JSON object replacing all categories. `fill_opacity` uses an underscore; the JSON config uses `fillOpacity`.
 
 For remote reuse, publish the source in your own GitHub repository and reference its actual owner/repository and an existing commit SHA or release tag in `uses`. No public `v3` tag is assumed by this project. Before publishing a release, run `npm test` and `npm run generate`, commit the result, and create and push the desired release tag. This archive does not publish a repository or a release.

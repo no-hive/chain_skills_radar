@@ -23,6 +23,18 @@ inputs:
   max:
     description: "Optional maximum scale value"
     required: false
+  format:
+    description: "Optional layout override: wide or square"
+    required: false
+  size:
+    description: "Optional square canvas side in pixels (default: 900)"
+    required: false
+  label_font_size:
+    description: "Optional category label font size in pixels"
+    required: false
+  title_font_size:
+    description: "Optional title font size in pixels"
+    required: false
 
 outputs:
   svg:

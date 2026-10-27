@@ -1,5 +1,9 @@
 # Unreleased fixes
 
+- Add an optional `square` layout (900 × 900), 24 px labels, and a 32 px title; preserve the existing wide layout by default.
+- Add configurable `labelFontSize` and `titleFontSize`, plus CLI and Action overrides for layout, square size, and typography.
+- Include a complete square example and light/dark SVG and PNG previews.
+
 - Fix CLI execution through npm symlinks and paths containing spaces, `#`, or `%`; importing the module remains side-effect free.
 - Reject CLI options with missing values instead of silently ignoring them.
 - Share override handling between CLI and GitHub Action; preserve zero opacity and numeric command-line inputs.
@@ -13,6 +17,6 @@
 
 ## Validation
 
-22 tests pass locally on Node.js 24.22.1. This includes CLI and Action subprocess tests, symlinks, escaped paths, malformed input, layout bounds, and extreme numeric scales. Default SVG generation matches the original asset byte for byte. Local npm installation and installation from an npm-packed tarball both generate that same SVG. Workflow/Action YAML and SVG XML parse successfully.
+28 tests pass locally on Node.js 24.22.1. This includes CLI and Action subprocess tests, symlinks, escaped paths, malformed input, layout bounds, extreme numeric scales, square presets, and font/layout overrides in CLI and Action. Default SVG generation matches the original asset byte for byte. Local npm installation and installation from an npm-packed tarball both generate that same SVG. Workflow/Action YAML and SVG XML parse successfully.
 
 The GitHub-hosted workflow, repository write permissions, and bot push must still be verified in the target repository. Node.js 20 and 22 are configured in CI but were not available for local execution. No release tag or remote repository has been published by this update.

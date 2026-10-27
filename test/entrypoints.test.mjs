@@ -87,7 +87,7 @@ test("importing CLI does not execute it, including from stdin-style entry points
 
 test("CLI rejects missing option values before writing an output file", async (t) => {
   const dir = await workspace(t);
-  for (const flag of ["-c", "--config", "-o", "--output", "--values", "--color", "--fill-opacity", "--max"]) {
+  for (const flag of ["-c", "--config", "-o", "--output", "--values", "--color", "--fill-opacity", "--max", "--format", "--size", "--label-font-size", "--title-font-size"]) {
     for (const suffix of [[], [""], ["--help"]]) {
       failed(execute(cli, ["generate", flag, ...suffix], dir), /Missing value/);
     }
@@ -154,4 +154,29 @@ test("Action rejects malformed data and single-line output injection", async (t)
   await writeFile(path.join(dir, "radar.json"), "null");
   failed(execute(action, [], dir, { INPUT_VALUES: scores }), /config must be a JSON object/);
   await assert.rejects(readFile(path.join(dir, "assets/radar.svg")), { code: "ENOENT" });
+});
+
+test("CLI overrides legacy wide dimensions with a square and configurable fonts", async (t) => {
+  const dir = await workspace(t);
+  await writeFile(path.join(dir, "radar.json"), config);
+  succeeded(execute(cli, ["generate", "--format", "square", "--size", "1000", "--label-font-size", "28", "--title-font-size", "36"], dir));
+  const svg = await readFile(path.join(dir, "assets/radar.svg"), "utf8");
+  assert.match(svg, /viewBox="0 0 1000 1000"/);
+  assert.match(svg, /\.label\{font:400 28px/);
+  assert.match(svg, /\.chart-title\{font:500 36px/);
+  failed(execute(cli, ["generate", "--format", "circle"], dir), /format must be wide or square/);
+  failed(execute(cli, ["generate", "--label-font-size", "abc"], dir), /finite number/);
+});
+
+test("Action exposes square size and typography overrides", async (t) => {
+  const dir = await workspace(t);
+  await writeFile(path.join(dir, "radar.json"), config);
+  succeeded(execute(action, [], dir, {
+    INPUT_FORMAT: "square", INPUT_SIZE: "1000", INPUT_LABEL_FONT_SIZE: "28", INPUT_TITLE_FONT_SIZE: "36",
+  }));
+  const svg = await readFile(path.join(dir, "assets/radar.svg"), "utf8");
+  assert.match(svg, /viewBox="0 0 1000 1000"/);
+  assert.match(svg, /\.label\{font:400 28px/);
+  assert.match(svg, /\.chart-title\{font:500 36px/);
+  failed(execute(action, [], dir, { INPUT_FORMAT: "square", INPUT_SIZE: "900.5" }), /size must be a safe integer/);
 });
