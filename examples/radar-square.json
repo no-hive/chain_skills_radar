@@ -16,7 +16,8 @@
     "DAOs": 8
   },
   "format": "square",
-  "size": 900,
-  "labelFontSize": 24,
-  "titleFontSize": 32
+  "size": 1100,
+  "labelFontSize": 36,
+  "titleFontSize": 40,
+  "compact": true
 }

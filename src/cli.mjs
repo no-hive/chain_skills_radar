@@ -21,6 +21,7 @@ Options:
       --fill-opacity <number>  Override fill opacity from 0 to 1
       --max <number>           Override the maximum scale value
       --format <wide|square>   Select the layout (default: wide)
+      --compact <true|false>   Trim excess bottom space (default: false)
       --size <number>          Square canvas side (default: 900)
       --label-font-size <n>    Override category label font size
       --title-font-size <n>    Override title font size
@@ -37,6 +38,7 @@ function parseArguments(argv) {
     ["--values", "values"], ["--color", "color"],
     ["--fill-opacity", "fillOpacity"], ["--max", "max"],
     ["--format", "format"], ["--size", "size"],
+    ["--compact", "compact"],
     ["--label-font-size", "labelFontSize"], ["--title-font-size", "titleFontSize"],
   ]);
   for (let index = 0; index < args.length; index += 1) {

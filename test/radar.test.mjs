@@ -47,11 +47,13 @@ test("supports fixed light and dark themes", () => {
   assert.match(dark, /\.background\{fill:#0d1117\}/);
 });
 
-test("uses compact equal vertical spacing around the title and radar", () => {
+test("halves both the top margin and the title-to-chart gap", () => {
   const svg = generateRadarSvg(sample);
-  assert.match(svg, /class="chart-title" x="600" y="46\.9"/);
-  assert.match(svg, /class="label" x="600\.0" y="83\.8"/);
-  assert.match(svg, /class="label" x="600\.0" y="567\.8"/);
+  const titleY = Number(svg.match(/class="chart-title" x="600" y="([\d.]+)"/)[1]);
+  const topLabelY = Number(svg.match(/class="label" x="600\.0" y="([\d.]+)"/)[1]);
+  // The previous equal-space layout allocated 22.87 px to each gap.
+  assert.ok(Math.abs((titleY - 24) - 22.87 / 2) < 0.1);
+  assert.ok(Math.abs((topLabelY - 15.5 * 0.6 - titleY - 24 * 0.2) - 22.87 / 2) < 0.1);
 });
 
 test("rejects values outside the scale", () => {
@@ -127,7 +129,7 @@ test("keeps coordinates finite for very large and very small valid scales", () =
     const svg = generateRadarSvg({ max, areas: { A: max, B: 0, C: max } });
     assert.doesNotMatch(svg, /Infinity|NaN/);
     // A maximum score must still reach the top of the outer grid.
-    assert.match(svg, /<circle class="dot" cx="600\.0" cy="111\.8"/);
+    assert.match(svg, /<circle class="dot" cx="600\.0" cy="89\.0"/);
   }
 });
 
@@ -173,4 +175,22 @@ test("rejects invalid formats, square sizes, and typography", () => {
     }
   }
   assert.throws(() => generateRadarSvg({ ...sample, format: "square", labelFontSize: 80 }), /width is too small/);
+});
+
+test("compact output matches the bottom margin to the top margin without scaling chart content", () => {
+  const input = { ...sample, format: "square", size: 1100, labelFontSize: 36, titleFontSize: 40 };
+  const full = generateRadarSvg(input);
+  const compact = generateRadarSvg({ ...input, compact: true });
+  const fullHeight = Number(full.match(/viewBox="0 0 1100 (\d+)"/)[1]);
+  const croppedHeight = Number(compact.match(/viewBox="0 0 1100 (\d+)"/)[1]);
+  assert.ok(croppedHeight < fullHeight - 200);
+  const bottomLabel = Number(compact.match(/<text class="label"[^>]*y="([\d.]+)"[^>]*>Privacy<\/text>/)[1]);
+  const margin = croppedHeight - bottomLabel - 36 * 0.6;
+  const titleY = Number(compact.match(/class="chart-title"[^>]*y="([\d.]+)"/)[1]);
+  const topMargin = titleY - 40;
+  assert.ok(Math.abs(margin - topMargin) < 1.1);
+  assert.equal(compact.slice(compact.indexOf('<text class="chart-title"')), full.slice(full.indexOf('<text class="chart-title"')));
+  for (const value of [null, "true", 0, 1]) {
+    assert.throws(() => normalizeConfig({ ...sample, compact: value }), /compact must be a boolean/);
+  }
 });

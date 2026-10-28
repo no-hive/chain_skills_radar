@@ -60,7 +60,7 @@ Use `"format": "square"` in `radar.json` for a 900 × 900 card with 24 px catego
 
 In square format, `size` sets both width and height and takes precedence over existing `width` and `height` fields. The default square radius is 240; an explicit `radius` still overrides it. Increasing label size or decreasing canvas size may require a smaller radius or shorter labels to fit.
 
-A complete example is in `examples/radar-square.json`. Generate it with:
+A complete example with larger 36 px labels, a 40 px title, and an 1100 px-wide canvas and compact bottom spacing is in `examples/radar-square.json`. Generate it with:
 
 ```sh
 npm run generate:square
@@ -82,6 +82,7 @@ After uploading this version to your generator repository, another repository ca
     size: 900
     label_font_size: 24
     title_font_size: 32
+    compact: true
 ```
 
 These inputs override the config. The equivalent CLI flags are `--format`, `--size`, `--label-font-size`, and `--title-font-size`. The config uses camelCase for the two font fields; the Action inputs use underscores.
@@ -131,6 +132,7 @@ All fields except `areas` have defaults. The example above shows the wide layout
 | `theme` | `auto`, `light`, or `dark` (case-insensitive) |
 | `width`, `height` | Safe integers of at least 240; the chart and text must fit |
 | `radius` | Positive finite number that fits within the image (wide: 214, square: 240) |
+| `compact` | Boolean; trim excess bottom space (default: false) |
 | `format` | `wide` (default) or `square` |
 | `size` | Square side length; safe integer of at least 240 (default: 900); ignored in wide format |
 | `labelFontSize` | Positive finite font size in pixels (wide: 15.5, square: 24) |
@@ -139,6 +141,8 @@ All fields except `areas` have defaults. The example above shows the wide layout
 JSON numbers must be numbers, not strings, booleans, or `null`. CLI and Action numeric overrides accept numeric strings and then use the same validation. Categories follow JavaScript object-key order; avoid integer-only names if their order matters.
 
 Each score is converted to a distance of `radius × (score / max)` from the center. The chart has equally spaced axes, polygon grid rings, a filled score polygon, and category labels. Scores are not printed as numbers.
+
+The top margin above the title and the space between the title and chart are half of the original equal-space layout. By default the canvas dimensions stay fixed. To remove the excess bottom space, set `"compact": true` in JSON or `compact: true` in the Action inputs. This matches the bottom margin below the chart and its labels to the top margin above the title, preserving their size and positions. Integer pixel rounding can introduce a difference of less than 1 px. The resulting image can be shorter than a square; use `compact: false` for an exact square.
 
 The radius stays fixed when changing image dimensions. If the image is too small, generation fails with a layout error instead of silently clipping the chart. Increase the dimensions, reduce `radius`, or shorten the title and category names. For example, a compact chart can use `title: "Skills"`, `width: 400`, `height: 400`, and `radius: 120` with short labels. Horizontal text validation uses conservative font-width estimates; the exact font depends on the viewer.
 

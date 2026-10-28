@@ -101,7 +101,7 @@ test("CLI accepts numeric overrides including zero with no config file", async (
   const svg = await readFile(path.join(dir, "assets/radar.svg"), "utf8");
   assert.match(svg, /fill:#abc;fill-opacity:0/);
   // C has score 10 on a max of 20, hence half-radius rather than the outer grid.
-  assert.match(svg, /cx="507\.3" cy="379\.3"/);
+  assert.match(svg, /cx="507\.3" cy="356\.5"/);
   failed(execute(cli, ["generate", "--values", scores, "--max", "-1"], dir), /max must be greater than 0/);
 });
 
@@ -138,7 +138,7 @@ test("Action applies overrides without config, preserves zero opacity, and creat
   }));
   const svg = await readFile(path.join(dir, "nested/custom.svg"), "utf8");
   assert.match(svg, /fill:#abc;fill-opacity:0/);
-  assert.match(svg, /cx="507\.3" cy="379\.3"/);
+  assert.match(svg, /cx="507\.3" cy="356\.5"/);
 });
 
 test("Action rejects malformed data and single-line output injection", async (t) => {
@@ -179,4 +179,24 @@ test("Action exposes square size and typography overrides", async (t) => {
   assert.match(svg, /\.label\{font:400 28px/);
   assert.match(svg, /\.chart-title\{font:500 36px/);
   failed(execute(action, [], dir, { INPUT_FORMAT: "square", INPUT_SIZE: "900.5" }), /size must be a safe integer/);
+});
+
+test("CLI accepts explicit compact booleans and rejects invalid values", async (t) => {
+  const dir = await workspace(t);
+  await writeFile(path.join(dir, "radar.json"), config);
+  succeeded(execute(cli, ["generate", "--format", "square", "--size", "1100", "--compact", "true"], dir));
+  const svg = await readFile(path.join(dir, "assets/radar.svg"), "utf8");
+  assert.ok(Number(svg.match(/viewBox="0 0 1100 (\d+)"/)[1]) < 1100);
+  failed(execute(cli, ["generate", "--compact", "yes"], dir), /compact override must be true or false/);
+});
+
+test("Action compact override trims the image while false preserves a square", async (t) => {
+  const dir = await workspace(t);
+  await writeFile(path.join(dir, "radar.json"), config);
+  for (const value of ["true", "false"]) {
+    succeeded(execute(action, [], dir, { INPUT_FORMAT: "square", INPUT_SIZE: "1100", INPUT_COMPACT: value }));
+    const svg = await readFile(path.join(dir, "assets/radar.svg"), "utf8");
+    const height = Number(svg.match(/viewBox="0 0 1100 (\d+)"/)[1]);
+    assert.equal(height < 1100, value === "true");
+  }
 });

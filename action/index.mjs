@@ -27,6 +27,7 @@ async function main() {
     fillOpacity: input("fill_opacity") || undefined,
     max: input("max") || undefined,
     format: input("format") || undefined,
+    compact: input("compact") || undefined,
     size: input("size") || undefined,
     labelFontSize: input("label_font_size") || undefined,
     titleFontSize: input("title_font_size") || undefined,

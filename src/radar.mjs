@@ -8,6 +8,7 @@ const DEFAULTS = {
   fillOpacity: 0.3,
   theme: "auto",
   format: "wide",
+  compact: false,
   size: 900,
   width: 1200,
   height: 600,
@@ -55,6 +56,7 @@ export function normalizeConfig(input) {
     throw new Error("format must be wide or square");
   }
   const config = { ...DEFAULTS, ...(format === "square" ? SQUARE_DEFAULTS : {}), ...input };
+  if (typeof config.compact !== "boolean") throw new Error("compact must be a boolean");
   if (format === "square") {
     config.size = finiteNumber(config.size, "size");
     if (!Number.isSafeInteger(config.size) || config.size < 240) {
@@ -126,8 +128,13 @@ export function generateRadarSvg(input) {
   if (verticalGap < 8) {
     throw new Error("height is too small for the selected radius and labels");
   }
-  const titleY = verticalGap + titleFontSize;
-  const cy = verticalGap * 2 + titleHeight + chartHalfHeight;
+  // Halve both spaces around the title; keep the requested canvas size.
+  const titleGap = verticalGap / 2;
+  const titleY = titleGap + titleFontSize;
+  const cy = titleGap * 2 + titleHeight + chartHalfHeight;
+  const outputHeight = config.compact
+    ? Math.min(height, Math.ceil(cy + chartHalfHeight + titleGap))
+    : height;
   const count = areas.length;
 
   // Reserve a conservative one-em advance per code point for fallback fonts.
@@ -187,7 +194,7 @@ export function generateRadarSvg(input) {
       : theme === "light"
         ? lightTheme
         : `${lightTheme}\n  @media(prefers-color-scheme:dark){${darkTheme}}`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${title}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${outputHeight}" width="${width}" height="${outputHeight}" role="img" aria-label="${title}">
 <title>${title}</title>
 <style>
   .grid{fill:none;stroke-width:1;stroke-dasharray:2 4}
@@ -197,7 +204,7 @@ export function generateRadarSvg(input) {
   .chart-title{font:500 ${titleFontSize}px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.1px}
   ${themeStyles}
 </style>
-<rect class="background" width="${width}" height="${height}"/>
+<rect class="background" width="${width}" height="${outputHeight}"/>
 <text class="chart-title" x="${cx}" y="${titleY.toFixed(1)}" text-anchor="middle">${title}</text>
 ${grid}
 ${axes}

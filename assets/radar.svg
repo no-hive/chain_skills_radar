@@ -10,34 +10,34 @@
   @media(prefers-color-scheme:dark){.background{fill:#0d1117}.grid,.outer,.axis,.data{stroke:#f0f6fc}.dot,.label,.chart-title{fill:#f0f6fc}}
 </style>
 <rect class="background" width="1200" height="600"/>
-<text class="chart-title" x="600" y="46.9" text-anchor="middle">ChainSkillsRadar</text>
-<polygon class="grid" points="600.0,272.3 637.8,288.0 653.5,325.8 637.8,363.7 600.0,379.3 562.2,363.7 546.5,325.8 562.2,288.0"/>
-<polygon class="grid" points="600.0,218.8 675.7,250.2 707.0,325.8 675.7,401.5 600.0,432.8 524.3,401.5 493.0,325.8 524.3,250.2"/>
-<polygon class="grid" points="600.0,165.3 713.5,212.3 760.5,325.8 713.5,439.3 600.0,486.3 486.5,439.3 439.5,325.8 486.5,212.3"/>
-<polygon class="outer" points="600.0,111.8 751.3,174.5 814.0,325.8 751.3,477.2 600.0,539.8 448.7,477.2 386.0,325.8 448.7,174.5"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="600.0" y2="111.8"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="751.3" y2="174.5"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="814.0" y2="325.8"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="751.3" y2="477.2"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="600.0" y2="539.8"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="448.7" y2="477.2"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="386.0" y2="325.8"/>
-<line class="axis" x1="600" y1="325.83333333333337" x2="448.7" y2="174.5"/>
-<polygon class="data" points="600.0,218.8 645.4,280.4 621.4,325.8 630.3,356.1 600.0,411.4 554.6,371.2 514.4,325.8 478.9,204.8"/>
-<circle class="dot" cx="600.0" cy="218.8" r="5"/>
-<circle class="dot" cx="645.4" cy="280.4" r="5"/>
-<circle class="dot" cx="621.4" cy="325.8" r="5"/>
-<circle class="dot" cx="630.3" cy="356.1" r="5"/>
-<circle class="dot" cx="600.0" cy="411.4" r="5"/>
-<circle class="dot" cx="554.6" cy="371.2" r="5"/>
-<circle class="dot" cx="514.4" cy="325.8" r="5"/>
-<circle class="dot" cx="478.9" cy="204.8" r="5"/>
-<text class="label" x="600.0" y="83.8" text-anchor="middle" dominant-baseline="middle">DeFi</text>
-<text class="label" x="771.1" y="154.7" text-anchor="start" dominant-baseline="middle">PayFi</text>
-<text class="label" x="842.0" y="325.8" text-anchor="start" dominant-baseline="middle">Assets</text>
-<text class="label" x="771.1" y="497.0" text-anchor="start" dominant-baseline="middle">DePIN</text>
-<text class="label" x="600.0" y="567.8" text-anchor="middle" dominant-baseline="middle">Privacy</text>
-<text class="label" x="428.9" y="497.0" text-anchor="end" dominant-baseline="middle">Identity</text>
-<text class="label" x="358.0" y="325.8" text-anchor="end" dominant-baseline="middle">Funding</text>
-<text class="label" x="428.9" y="154.7" text-anchor="end" dominant-baseline="middle">DAOs</text>
+<text class="chart-title" x="600" y="35.4" text-anchor="middle">ChainSkillsRadar</text>
+<polygon class="grid" points="600.0,249.5 637.8,265.1 653.5,303.0 637.8,340.8 600.0,356.5 562.2,340.8 546.5,303.0 562.2,265.1"/>
+<polygon class="grid" points="600.0,196.0 675.7,227.3 707.0,303.0 675.7,378.6 600.0,410.0 524.3,378.6 493.0,303.0 524.3,227.3"/>
+<polygon class="grid" points="600.0,142.5 713.5,189.5 760.5,303.0 713.5,416.5 600.0,463.5 486.5,416.5 439.5,303.0 486.5,189.5"/>
+<polygon class="outer" points="600.0,89.0 751.3,151.6 814.0,303.0 751.3,454.3 600.0,517.0 448.7,454.3 386.0,303.0 448.7,151.6"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="600.0" y2="89.0"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="751.3" y2="151.6"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="814.0" y2="303.0"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="751.3" y2="454.3"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="600.0" y2="517.0"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="448.7" y2="454.3"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="386.0" y2="303.0"/>
+<line class="axis" x1="600" y1="302.9666666666667" x2="448.7" y2="151.6"/>
+<polygon class="data" points="600.0,196.0 645.4,257.6 621.4,303.0 630.3,333.2 600.0,388.6 554.6,348.4 514.4,303.0 478.9,181.9"/>
+<circle class="dot" cx="600.0" cy="196.0" r="5"/>
+<circle class="dot" cx="645.4" cy="257.6" r="5"/>
+<circle class="dot" cx="621.4" cy="303.0" r="5"/>
+<circle class="dot" cx="630.3" cy="333.2" r="5"/>
+<circle class="dot" cx="600.0" cy="388.6" r="5"/>
+<circle class="dot" cx="554.6" cy="348.4" r="5"/>
+<circle class="dot" cx="514.4" cy="303.0" r="5"/>
+<circle class="dot" cx="478.9" cy="181.9" r="5"/>
+<text class="label" x="600.0" y="61.0" text-anchor="middle" dominant-baseline="middle">DeFi</text>
+<text class="label" x="771.1" y="131.8" text-anchor="start" dominant-baseline="middle">PayFi</text>
+<text class="label" x="842.0" y="303.0" text-anchor="start" dominant-baseline="middle">Assets</text>
+<text class="label" x="771.1" y="474.1" text-anchor="start" dominant-baseline="middle">DePIN</text>
+<text class="label" x="600.0" y="545.0" text-anchor="middle" dominant-baseline="middle">Privacy</text>
+<text class="label" x="428.9" y="474.1" text-anchor="end" dominant-baseline="middle">Identity</text>
+<text class="label" x="358.0" y="303.0" text-anchor="end" dominant-baseline="middle">Funding</text>
+<text class="label" x="428.9" y="131.8" text-anchor="end" dominant-baseline="middle">DAOs</text>
 </svg>

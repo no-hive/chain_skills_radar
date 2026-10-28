@@ -29,6 +29,9 @@ inputs:
   size:
     description: "Optional square canvas side in pixels (default: 900)"
     required: false
+  compact:
+    description: "Match bottom spacing to the top margin above the title (true or false); may change aspect ratio"
+    required: false
   label_font_size:
     description: "Optional category label font size in pixels"
     required: false

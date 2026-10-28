@@ -21,6 +21,12 @@ export function applyOverrides(config, overrides) {
   }
   if (overrides.max !== undefined) result.max = finiteNumber(overrides.max, "max", true);
   if (overrides.format !== undefined) result.format = overrides.format;
+  if (overrides.compact !== undefined) {
+    if (overrides.compact !== "true" && overrides.compact !== "false") {
+      throw new Error("compact override must be true or false");
+    }
+    result.compact = overrides.compact === "true";
+  }
   for (const key of ["size", "labelFontSize", "titleFontSize"]) {
     if (overrides[key] !== undefined) result[key] = finiteNumber(overrides[key], key, true);
   }
